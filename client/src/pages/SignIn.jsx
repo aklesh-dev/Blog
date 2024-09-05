@@ -8,6 +8,7 @@ export default function SignIn() {
   const [errorMessage, setErrorMessage] = useState(null);
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
+  console.log(loading)
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.id]: e.target.value.trim() });
@@ -31,9 +32,10 @@ export default function SignIn() {
       });
       const data = await res.json();
       if (data.success === false) {
-        return setErrorMessage(data.message);
+         setErrorMessage(data.message);
+         setLoading(false);
+         return;
       }
-      setLoading(false);
       if(res.ok){
         navigate('/');
       }
