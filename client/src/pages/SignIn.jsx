@@ -4,6 +4,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { HiInformationCircle } from "react-icons/hi";
 import { useDispatch, useSelector } from 'react-redux';
 import { signInFailure, signInStart, signInSuccess } from '../redux/user/userSlice';
+import OAuth from '../components/OAuth';
 
 export default function SignIn() {
   const [formData, setFormData] = useState({});
@@ -72,6 +73,7 @@ export default function SignIn() {
                 </> : 'sign in'
               }
             </Button>
+            <OAuth/>
           </form>
 
           <div className="flex gap-2 mt-4 text-sm">
