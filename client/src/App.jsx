@@ -7,6 +7,7 @@ import Projects from './pages/Projects';
 import Dashboard from './pages/Dashboard';
 import Header from './components/Header';
 import Footer from './components/Footer';
+import PrivateRoute from './components/PrivateRoute';
 
 function App() {
 
@@ -20,9 +21,11 @@ function App() {
           <Route path='/sign-in' element={<SignIn />} />
           <Route path='/sign-up' element={<SignUp />} />
           <Route path='/projects' element={<Projects />} />
-          <Route path='/dashboard' element={<Dashboard />} />
+          <Route element={<PrivateRoute />}>
+            <Route path='/dashboard' element={<Dashboard />} />
+          </Route>
         </Routes>
-        <Footer/>
+        <Footer />
       </BrowserRouter>
     </>
   )
