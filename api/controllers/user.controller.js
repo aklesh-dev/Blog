@@ -48,3 +48,14 @@ if (req.user.id !== req.params.userId) {
     next(error);
   }
 };
+
+export const deleteUser = async (req, res, next) => {
+  if(req.user.id !== req.params.userId) return next(errorHandler(401, 'You are not allow to delete this user! '));
+
+  try {
+    await User.findByIdAndDelete(req.params.userId);
+    res.clearCookie('access_token').status(200).json("Account deleted permanently");
+  } catch (error) {
+    next(error);
+  }
+}
