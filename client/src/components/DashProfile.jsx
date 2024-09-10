@@ -1,6 +1,7 @@
 import { Alert, Button, FloatingLabel, Modal, Spinner } from "flowbite-react";
 import { useEffect, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
+import { Link } from "react-router-dom";
 import { getDownloadURL, getStorage, ref, uploadBytesResumable } from "firebase/storage";
 import { app } from "../firebase";
 import { CircularProgressbar } from 'react-circular-progressbar';
@@ -216,16 +217,30 @@ export default function DashProfile() {
           id="email"
         />
         <FloatingLabel onChange={handleChange} variant="outlined" type="password" label="password" id="password" />
-        <Button disabled={loading} type="submit" gradientDuoTone="purpleToBlue" outline>
+        <Button disabled={loading || imageFileUploading} type="submit" gradientDuoTone="purpleToBlue" outline className="font-semibold">
           {
             loading
               ? <>
                 <Spinner size={'sm'} />
                 <span className="pl-3">Loading...</span>
               </>
-              : 'update'
+              : 'Update'
           }
         </Button>
+
+        {
+          currentUser.isAdmin && <>
+            <Link to='/create-post'>
+              <Button
+                type="button"
+                gradientDuoTone="purpleToPink"
+                className="w-full font-semibold"
+              >
+                Create a post
+              </Button>
+            </Link>
+          </>
+        }
       </form>
 
       <div className="flex justify-between text-red-500 my-5">
@@ -234,7 +249,9 @@ export default function DashProfile() {
         </span>
         <span onClick={handleSignoutUser} className="cursor-pointer hover:text-red-700">Sign out</span>
       </div>
+      
       {error && <Alert color={'failure'}>{error}</Alert>}
+
       {updateUserSuccess && <Alert color={'success'}>{updateUserSuccess}</Alert>}
 
       <Modal
