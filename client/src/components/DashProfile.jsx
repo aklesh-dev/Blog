@@ -5,9 +5,14 @@ import { getDownloadURL, getStorage, ref, uploadBytesResumable } from "firebase/
 import { app } from "../firebase";
 import { CircularProgressbar } from 'react-circular-progressbar';
 import 'react-circular-progressbar/dist/styles.css';
-import { deleteUserInFailure, deleteUserInStart, deleteUserInSuccess, 
-  updateInFailure, updateInStart, updateInSuccess } from "../redux/user/userSlice";
-import {HiOutlineExclamationCircle} from 'react-icons/hi';
+import {
+  deleteUserInFailure, deleteUserInStart, deleteUserInSuccess,
+  signoutUserInFailure,
+  signoutUserInStart,
+  signoutUserInSuccess,
+  updateInFailure, updateInStart, updateInSuccess
+} from "../redux/user/userSlice";
+import { HiOutlineExclamationCircle } from 'react-icons/hi';
 
 export default function DashProfile() {
   const { currentUser, loading, error } = useSelector((state) => state.user);
@@ -130,7 +135,23 @@ export default function DashProfile() {
     } catch (error) {
       dispatch(deleteUserInFailure(error.message));
     }
-  }
+  };
+
+  const handleSignoutUser = async () => {
+    try {
+      dispatch(signoutUserInStart());
+      const res = await fetch('/api/auth/signout');
+      const data = await res.json();
+      if (data.success === false) {
+        dispatch(signoutUserInFailure(data.message));
+      } else {
+        dispatch(signoutUserInSuccess(data));
+      }
+
+    } catch (error) {
+      dispatch(signoutUserInFailure(error.message));
+    }
+  };
 
   return (
     <section className="max-w-lg mx-auto w-full p-3">
@@ -211,7 +232,7 @@ export default function DashProfile() {
         <span onClick={() => setShowModel(true)} className="cursor-pointer hover:text-red-700">
           Delete Account
         </span>
-        <span className="cursor-pointer hover:text-red-700">Sign out</span>
+        <span onClick={handleSignoutUser} className="cursor-pointer hover:text-red-700">Sign out</span>
       </div>
       {error && <Alert color={'failure'}>{error}</Alert>}
       {updateUserSuccess && <Alert color={'success'}>{updateUserSuccess}</Alert>}
