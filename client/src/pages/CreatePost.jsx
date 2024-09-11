@@ -1,4 +1,4 @@
-import { Alert, Button, FileInput, Select, TextInput } from 'flowbite-react'
+import { Alert, Button, FileInput, Select, Spinner, TextInput } from 'flowbite-react'
 import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
 import { getDownloadURL, getStorage, ref, uploadBytesResumable } from "firebase/storage";
@@ -6,14 +6,18 @@ import { app } from '../firebase';
 import { useState } from 'react';
 import { CircularProgressbar } from 'react-circular-progressbar';
 import 'react-circular-progressbar/dist/styles.css';
+import { useNavigate } from 'react-router-dom';
 
 export default function CreatePost() {
-    const [imageFile, setImageFile] = useState(null);    
+    const [imageFile, setImageFile] = useState(null);
     const [imageFileUploadError, setImageFileUploadError] = useState(null);
     const [imageUploadProgress, setImageUploadProgress] = useState(null);
     const [formData, setFormData] = useState({});
+    const [publishError, setPublishError] = useState(null);
+    const [publishLoading, setPublishLoading] = useState(false);
 
-    
+    const Navigate = useNavigate();
+
     const handleUploadImage = async () => {
         if (!imageFile) {
             setImageFileUploadError('Please select an image');
@@ -37,7 +41,7 @@ export default function CreatePost() {
                 },
                 () => {
                     getDownloadURL(uploadTask.snapshot.ref)
-                        .then((downloadURL) => {                            
+                        .then((downloadURL) => {
                             setImageFileUploadError(null);
                             setImageUploadProgress(null);
                             setFormData({ ...formData, image: downloadURL });
@@ -57,19 +61,47 @@ export default function CreatePost() {
     const handleImageChange = (e) => {
         const file = e.target.files[0];
         if (file) {
-            setImageFile(file);            
+            setImageFile(file);
         }
     };
+
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+        try {
+            setPublishLoading(true);
+            const res = await fetch(`/api/post/create-post`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(formData)
+            });
+            const data = await res.json();
+            if (!res.ok) {
+                setPublishError(data.message);
+                setPublishLoading(false);
+                return;
+            }
+            else if (res.ok) {
+                setPublishError(null);
+                setPublishLoading(false);
+                Navigate(`/post/${data.slug}`);
+            }
+        } catch (error) {
+            setPublishLoading(false);
+            setPublishError('Something went wrong!', error);
+        }
+    }
 
     return (
         <section className="p-3 max-w-3xl mx-auto min-h-svh">
             <h1 className="text-2xl font-semibold text-center my-7">Create a post</h1>
 
-            <form className="flex flex-col gap-4">
+            <form onSubmit={handleSubmit} className="flex flex-col gap-4">
                 <div className="flex max-sm:flex-col gap-4 justify-between">
-                    <TextInput type='text' placeholder='Title' required id='title' className='flex-1' />
+                    <TextInput onChange={(e) => setFormData({ ...formData, title: e.target.value })} type='text' placeholder='Title' required id='title' className='flex-1' />
 
-                    <Select>
+                    <Select onChange={(e) => setFormData({ ...formData, category: e.target.value })}>
                         <option value='uncategorized'>Select a category</option>
                         <option value='javascript'>JavaScript</option>
                         <option value='reactjs'>React.js</option>
@@ -98,9 +130,21 @@ export default function CreatePost() {
                 {/* --error uploading image-- */}
                 {imageFileUploadError && <Alert color={'failure'}>{imageFileUploadError}</Alert>}
 
-                <ReactQuill theme='snow' placeholder='write something...' className='h-72 mb-12' required />
+                <ReactQuill onChange={(value) => setFormData({ ...formData, content: value })} theme='snow' placeholder='write something...' className='h-72 mb-12' required />
 
-                <Button type='submit' gradientDuoTone={'purpleToPink'} className='font-semibold'>Publish</Button>
+                <Button disabled={publishLoading} type='submit' gradientDuoTone={'purpleToPink'} className='font-semibold'>
+                    {publishLoading
+                        ? <>
+                            <Spinner size={'sm'} />
+                            <span className='ml-2'>Loading</span>
+                        </>
+                        : 'Publish'
+                    }
+                </Button>
+
+                {
+                    publishError && <Alert color={'failure'}>{publishError}</Alert>
+                }
             </form>
         </section>
     )
