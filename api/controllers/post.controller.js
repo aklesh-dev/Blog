@@ -41,28 +41,41 @@ export const getposts = async (req, res, next) => {
                     { content: { $regex: req.query.searchTerm, $options: 'i' } },
                 ]
             }),
-        }).sort({ updatedAt: sortDirection}).skip(startIndex).limit(limit);
+        }).sort({ updatedAt: sortDirection }).skip(startIndex).limit(limit);
 
         // --total no of posts present--
         const totalPosts = await Post.countDocuments();
 
         // --post created last month--
         // --current date--
-        const now = new Date(); 
+        const now = new Date();
         //--calculating one month ago--
         const oneMonthAgo = new Date(
             now.getFullYear(),
             now.getMonth() - 1,
             now.getDate()
-        ); 
+        );
 
         // --count posts from last month--
         const lastMonthPosts = await Post.countDocuments({
-            createdAt: {$gte: oneMonthAgo, $lt: now}
+            createdAt: { $gte: oneMonthAgo, $lt: now }
         });
-        
-        res.status(200).json({posts, totalPosts, lastMonthPosts });
 
+        res.status(200).json({ posts, totalPosts, lastMonthPosts });
+
+    } catch (error) {
+        next(error);
+    }
+};
+
+export const deletePost = async (req, res, next) => {
+    if (!req.user.isAdmin || req.user.id !== req.params.userId) {
+        return res.status(403).json("You do not have permission to delete this post");
+    }
+
+    try {
+        const post = await Post.findByIdAndDelete(req.params.postId);
+        res.status(200).json("Post has been deleted successfully");
     } catch (error) {
         next(error);
     }
