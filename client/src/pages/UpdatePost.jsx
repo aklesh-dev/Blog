@@ -20,8 +20,7 @@ export default function UpdatePost() {
     const { postId } = useParams();    
     const Navigate = useNavigate();
 
-    console.log(formData)
-
+    
     useEffect(() => {
         const fetchPost = async () => {
             try {
@@ -88,13 +87,7 @@ export default function UpdatePost() {
             console.error(error);
         }
     };
-
-    const handleImageChange = (e) => {
-        const file = e.target.files[0];
-        if (file) {
-            setImageFile(file);
-        }
-    };
+    
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -144,7 +137,7 @@ export default function UpdatePost() {
                 </div>
 
                 <div className="flex items-center justify-between gap-4 border-4 border-teal-400 border-dotted p-3">
-                    <FileInput onChange={handleImageChange} type='file' accept='image/*' />
+                    <FileInput onChange={(e) => setImageFile(e.target.files[0])} type='file' accept='image/*' />
                     <Button disabled={imageUploadProgress} onClick={handleUploadImage} type='button' className='font-semibold' outline gradientDuoTone='greenToBlue'>
                         {imageUploadProgress
                             ? <div className='w-16 h-16'>
@@ -154,7 +147,7 @@ export default function UpdatePost() {
                         }
                     </Button>
                 </div>
-                {console.log("formData image :", formData.image)}
+                
 
                 {/* --view upload image-- */}
                 {
