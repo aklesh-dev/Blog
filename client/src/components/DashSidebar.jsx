@@ -5,6 +5,7 @@ import { Link, useLocation } from 'react-router-dom';
 import { signoutUserInFailure, signoutUserInStart, signoutUserInSuccess } from '../redux/user/userSlice';
 import { useDispatch, useSelector } from 'react-redux';
 import { BsFillPostcardFill } from "react-icons/bs";
+import { HiUserGroup } from "react-icons/hi2";
 
 
 export default function DashSidebar() {
@@ -58,8 +59,15 @@ export default function DashSidebar() {
                                     Post
                                 </Sidebar.Item>
                             </Link>
+
+                            <Link to='/dashboard?tab=users'>
+                                <Sidebar.Item active={tab === 'users'} icon={HiUserGroup} as='div'>
+                                    User
+                                </Sidebar.Item>
+                            </Link>
                         </>
                     }
+                    
 
                     <Sidebar.Item icon={HiArrowSmRight} className="cursor-pointer" onClick={handleSignoutUser}>
                         Sign out
