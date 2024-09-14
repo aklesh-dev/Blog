@@ -3,7 +3,7 @@ import { useSelector } from 'react-redux';
 import { Button, Modal, Spinner, Table } from 'flowbite-react';
 import { MdDelete } from "react-icons/md";
 import { HiOutlineExclamationCircle } from 'react-icons/hi';
-import{ FaCheck, FaTimes} from 'react-icons/fa';
+import { FaCheck, FaTimes } from 'react-icons/fa';
 
 export default function DashUsers() {
   const { currentUser } = useSelector(state => state.user);
@@ -20,7 +20,7 @@ export default function DashUsers() {
         setLoading(true);
         const res = await fetch(`/api/user/getusers`);
         const data = await res.json();
-        
+
         if (res.ok) {
           setUsers(data.users);
           setLoading(false);
@@ -64,14 +64,15 @@ export default function DashUsers() {
   const handleDeleteUser = async () => {
     setShowModal(false);
     try {
-      const res = await fetch(`/api/user/deleteuser/${userIdToDelete}/${currentUser._id}`, {
+      const res = await fetch(`/api/user/delete/${userIdToDelete}`, {
         method: 'DELETE',
       });
       const data = await res.json();
-      if (!res.ok) {
-        console.log(data.message);
+      if (res.ok) {
+        setUsers((prev) => prev.filter((user) => user._id !== userIdToDelete));
+        setShowModal(false);
       } else {
-        setUserPosts((prev) => prev.filter((post) => post._id !== postIdToDelete));
+        console.log(data.message);
       }
 
     } catch (error) {
@@ -111,15 +112,15 @@ export default function DashUsers() {
 
                         </Table.Cell>
 
-                        <Table.Cell className='text-gray-900 dark:text-white'>                          
-                            {user.username}                          
+                        <Table.Cell className='text-gray-900 dark:text-white'>
+                          {user.username}
                         </Table.Cell>
 
                         <Table.Cell>
                           {user.email}
                         </Table.Cell>
                         <Table.Cell>
-                          {user.isAdmin ? (<FaCheck className='text-green-500' />): (<FaTimes className='text-red-500' />)}
+                          {user.isAdmin ? (<FaCheck className='text-green-500' />) : (<FaTimes className='text-red-500' />)}
                         </Table.Cell>
 
                         <Table.Cell>
@@ -127,7 +128,7 @@ export default function DashUsers() {
                             <MdDelete className=' hover:rotate-3' />
                             <span onClick={() => {
                               setShowModal(true)
-                                setUserIdToDelete(user._id)
+                              setUserIdToDelete(user._id)
                             }} className='font-semibold hover:underline '>Delete</span>
                           </div>
                         </Table.Cell>
