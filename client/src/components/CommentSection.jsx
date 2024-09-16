@@ -1,16 +1,19 @@
 import { Alert, Button, Textarea } from 'flowbite-react';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
 import { Link } from 'react-router-dom';
+import Comment from './Comment';
 
 export default function CommentSection({ postId }) {
   const { currentUser } = useSelector(state => state.user);
-  const [comments, setComments] = useState('');
+  const [comment, setComment] = useState('');
   const [commentError, setCommentError] = useState(null);
+  const [comments, setComments] = useState([]);
+  
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (comments.length > 200) return;
+    if (comment.length > 200) return;
 
     try {
       const res = await fetch(`/api/comment/create`, {
@@ -19,21 +22,46 @@ export default function CommentSection({ postId }) {
           'Content-Type': 'application/json'
         },
         body: JSON.stringify({
-          content: comments,
+          content: comment,
           postId,
           userId: currentUser._id,
         }),
       });
       const data = await res.json();
       if (res.ok) {
-        setComments('');
+        setComment('');
         setCommentError(null);
+        setComment([data, ...comments])
       };
     } catch (error) {
       setCommentError(error.message);
     }
 
   };
+
+  useEffect(() => {
+    const fetchComments = async () => {
+      try {
+        const res = await fetch(`/api/comment/get-comments/${postId}`);
+        const data = await res.json();
+
+        if (res.ok) {
+          setComments(data);
+
+        } else {
+          console.error("Failed to fetch the comments");
+          setComment([]);
+        }
+
+      } catch (error) {
+        console.error('Error fetching comments:', error);
+        setComment([]);
+      }
+    };
+
+    fetchComments();
+
+  }, [postId]);
 
   return (
     <section className="max-w-4xl mx-auto w-full p-3">
@@ -65,17 +93,40 @@ export default function CommentSection({ postId }) {
               placeholder='Write a comment...'
               rows={'3'}
               maxLength={'200'}
-              onChange={(e) => setComments(e.target.value)}
-              value={comments}
+              onChange={(e) => setComment(e.target.value)}
+              value={comment}
             />
             <div className="flex justify-between items-center mt-5">
-              <p className='text-sm text-gray-500'>{200 - comments.length} characters remaining</p>
+              <p className='text-sm text-gray-500'>{200 - comment.length} characters remaining</p>
               <Button type='submit' outline gradientDuoTone={'purpleToBlue'}>Submit</Button>
             </div>
             {
               commentError && <Alert color={'failure'} className='mt-5'>{commentError}</Alert>
             }
           </form>
+        )
+      }
+
+      {/* --show comments-- */}
+      {
+        comments && comments.length === 0 ? (
+          <p className='text-sm my-5'>No comments yet!</p>
+        ) : (
+          <>
+            <div className="text-sm my-5 flex items-center gap-1">
+              <p className="">Comments</p>
+              <div className="border border-gray-400 py-1 px-2 rounded-sm">
+                <p className="">{comments.length}</p>
+              </div>
+            </div>
+
+            {
+              comments.map((comment) => (
+                <Comment key={comment._id} comment={comment} />
+              ))
+            }
+
+          </>
         )
       }
     </section>
