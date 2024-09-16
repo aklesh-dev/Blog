@@ -1,14 +1,17 @@
 import { useEffect, useState } from 'react';
-import moment from'moment';
+import moment from 'moment';
+import { FaThumbsUp } from 'react-icons/fa';
+import { useSelector } from 'react-redux';
 
-export default function Comment({ comment }) {
+export default function Comment({ comment, onLike }) {
   const [user, setUser] = useState({});
- 
+  const { currentUser } = useSelector(state => state.user);
+  
   useEffect(() => {
     const fetchUser = async () => {
       const res = await fetch(`/api/user/${comment.userId}`);
       const data = await res.json();
-      if(res.ok) {
+      if (res.ok) {
         setUser(data);
       }
     };
@@ -16,6 +19,7 @@ export default function Comment({ comment }) {
     fetchUser();
   }, [comment]);
 
+  
   return (
     <section className="flex p-4 border-b dark:border-gray-600 text-sm ">
       <div className="flex-shrink-0 mr-3">
@@ -31,6 +35,23 @@ export default function Comment({ comment }) {
         </div>
 
         <p className='text-gray-700 dark:text-gray-300 pb-2'>{comment.content}</p>
+
+        <div className="flex items-center gap-2 pt-2 border-t dark:border-gray-600 max-w-fit">
+          <button
+            onClick={() => onLike(comment._id)}
+            type='button'
+            className={`text-gray-500 hover:text-blue-500 
+              ${currentUser && comment?.likes?.includes(currentUser._id) ? '!text-blue-500' : ''} `}
+          >
+            <FaThumbsUp />
+          </button>
+
+          <p className='text-gray-500'>
+            {
+              comment.numberOfLikes > 0 && comment.numberOfLikes + " " + (comment.numberOfLikes === 1? "like" : "likes")
+            }
+          </p>
+        </div>
       </div>
 
     </section>
