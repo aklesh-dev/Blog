@@ -6,6 +6,7 @@ import { signoutUserInFailure, signoutUserInStart, signoutUserInSuccess } from '
 import { useDispatch, useSelector } from 'react-redux';
 import { BsFillPostcardFill } from "react-icons/bs";
 import { HiUserGroup } from "react-icons/hi2";
+import { FaCommentDots } from "react-icons/fa";
 
 
 export default function DashSidebar() {
@@ -63,6 +64,11 @@ export default function DashSidebar() {
                             <Link to='/dashboard?tab=users'>
                                 <Sidebar.Item active={tab === 'users'} icon={HiUserGroup} as='div'>
                                     User
+                                </Sidebar.Item>
+                            </Link>
+                            <Link to='/dashboard?tab=comments'>
+                                <Sidebar.Item active={tab === 'comments'} icon={FaCommentDots} as='div'>
+                                    Comment
                                 </Sidebar.Item>
                             </Link>
                         </>
