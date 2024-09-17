@@ -19,7 +19,7 @@ export default function CallToAction() {
             </div>
 
             <div className="p-7 flex-1">
-                <img src="https://www.squash.io/wp-content/uploads/2023/11/javascript-series.jpg" className="rounded-md shadow-md" />
+                <img src="https://www.squash.io/wp-content/uploads/2023/11/javascript-series.jpg" className="w-[400px] h-[400px] rounded-md shadow-md" />
             </div>
         </section>
     )
